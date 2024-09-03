@@ -8,19 +8,24 @@ def emotion_detector(text_to_analyse):  # Define a function named emotion_detect
     header = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}  # Set the headers required for the API request
 
     response = requests.post(url, json = myobj, headers=header)  # Send a POST request to the API with the text and headers
-    
-    # Response processing
-    formatted_response = json.loads(response.text) # Convert response to json
-    
-    emotions = formatted_response['emotionPredictions'][0]['emotion']
 
-    results = {
-        'anger': emotions['anger'],
-        'disgust': emotions['disgust'],
-        'fear': emotions['fear'],
-        'joy': emotions['joy'],
-        'sadness': emotions['sadness'],
-        'dominant_emotion': max(emotions, key=emotions.get)
-    }
+    # If the response status is 200 gather emotion information from the response
+    if response.status_code == 200:    
+        # Response processing
+        formatted_response = json.loads(response.text) # Convert response to json
+        
+        emotions = formatted_response['emotionPredictions'][0]['emotion']
+
+        results = {
+            'anger': emotions['anger'],
+            'disgust': emotions['disgust'],
+            'fear': emotions['fear'],
+            'joy': emotions['joy'],
+            'sadness': emotions['sadness'],
+            'dominant_emotion': max(emotions, key=emotions.get)
+        }
+    # If the response status code is 400, set emotion dictionary values to None
+    elif response.status_code == 400:
+        results = {'anger': None,'disgust': None,'fear': None,'joy': None,'sadness': None,'dominant_emotion': None}
     return (results)
 
